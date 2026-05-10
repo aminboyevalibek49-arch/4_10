@@ -1,5 +1,5 @@
 const { read_file, write_file } = require("../fs/file_system");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../node_modules/bcryptjs/umd");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 
