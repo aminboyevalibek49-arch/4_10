@@ -5,12 +5,9 @@ const { read_file, write_file } = require("../fs/file_system");
 const getAllProducts = async (req, res) => {
   try {
     const products = read_file("products.json");
-
     res.status(200).json(products);
   } catch (err) {
-    return res.status(500).json({
-      message: err.message,
-    });
+    return res.status(500).json({ message: err.message });
   }
 };
 
@@ -19,20 +16,15 @@ const getOneProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const products = read_file("products.json");
-
     const foundedProduct = products.find((pro) => pro.id === id);
 
     if (!foundedProduct) {
-      return res.status(404).json({
-        message: "product not found",
-      });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     res.status(200).json(foundedProduct);
   } catch (err) {
-    return res.status(500).json({
-      message: err.message,
-    });
+    return res.status(500).json({ message: err.message });
   }
 };
 
@@ -40,25 +32,14 @@ const getOneProduct = async (req, res) => {
 const addProduct = async (req, res) => {
   try {
     const { title, price, quantity } = req.body;
-
     const products = read_file("products.json");
 
-    products.push({
-      id: uuid.v4(),
-      title,
-      price,
-      quantity,
-    });
-
+    products.push({ id: uuid.v4(), title, price, quantity });
     write_file("products.json", products);
 
-    res.status(201).json({
-      message: "Added new product",
-    });
+    res.status(201).json({ message: "Added new product" });
   } catch (err) {
-    return res.status(500).json({
-      message: err.message,
-    });
+    return res.status(500).json({ message: err.message });
   }
 };
 
@@ -70,11 +51,8 @@ const updateProduct = async (req, res) => {
     const products = read_file("products.json");
 
     const foundedProduct = products.find((pro) => pro.id === id);
-
     if (!foundedProduct) {
-      return res.status(404).json({
-        message: "product not found",
-      });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     products.forEach((product) => {
@@ -86,14 +64,9 @@ const updateProduct = async (req, res) => {
     });
 
     write_file("products.json", products);
-
-    res.status(200).json({
-      message: "Updated product",
-    });
+    res.status(200).json({ message: "Updated product" });
   } catch (err) {
-    return res.status(500).json({
-      message: err.message,
-    });
+    return res.status(500).json({ message: err.message });
   }
 };
 
@@ -104,28 +77,17 @@ const deleteProducts = async (req, res) => {
     const products = read_file("products.json");
 
     const foundedProduct = products.find((pro) => pro.id === id);
-
     if (!foundedProduct) {
-      return res.status(404).json({
-        message: "product not found",
-      });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    products.forEach((product, idx) => {
-      if (product.id === id) {
-        products.splice(idx, 1);
-      }
-    });
+    // BUG FIX: forEach + splice o'rniga filter ishlatildi
+    const filteredProducts = products.filter((pro) => pro.id !== id);
+    write_file("products.json", filteredProducts);
 
-    write_file("products.json", products);
-
-    res.status(200).json({
-      message: "Deleted product",
-    });
+    res.status(200).json({ message: "Deleted product" });
   } catch (err) {
-    return res.status(500).json({
-      message: err.message,
-    });
+    return res.status(500).json({ message: err.message });
   }
 };
 

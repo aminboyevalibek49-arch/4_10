@@ -1,5 +1,5 @@
 const { read_file, write_file } = require("../fs/file_system");
-const bcrypt = require("../node_modules/bcryptjs/umd");
+const bcrypt = require("bcryptjs"); // BUG FIX: was require("../node_modules/bcryptjs/umd") — noto'g'ri import
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 
@@ -11,7 +11,9 @@ const register = async (req, res) => {
 
     const foundedUser = users.find((user) => user.email === email);
 
-    if (!foundedUser) {
+    // BUG FIX: shart teskari edi — !foundedUser bo'lsa "already exists" deyilgan
+    // To'g'risi: foundedUser topilsa (allaqachon bor) — xato qaytarish
+    if (foundedUser) {
       return res.status(400).json({
         message: "User already exists",
       });
@@ -52,6 +54,7 @@ const login = async (req, res) => {
         message: "User not found",
       });
     }
+
     const decode = await bcrypt.compare(password, foundedUser.password);
 
     if (decode) {
@@ -61,7 +64,12 @@ const login = async (req, res) => {
         role: foundedUser.role,
       };
 
-      const token = jwt.sign(payload.env.SEKRET_KEY, { expiresIn: "5d" });
+      // BUG FIX: jwt.sign(payload.env.SEKRET_KEY, ...) — to'liq noto'g'ri
+      // To'g'risi: jwt.sign(payload, SECRET_KEY, options)
+      const token = jwt.sign(payload, process.env.SEKRET_KEY, {
+        expiresIn: "5d",
+      });
+
       return res.status(200).json({
         message: "Success",
         token,
